@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { BlurText } from "@/components/ui/BlurText";
 import MagicBento from "@/components/ui/MagicBento";
 import LightPillar from "@/components/ui/LightPillar";
+import DotGrid from "@/components/ui/DotGrid";
 import { ArrowRight, Code, Terminal, Bot, Cpu, CircuitBoard } from "lucide-react";
 
 export default function Home() {
@@ -52,101 +53,120 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="about" className="py-24 md:py-32 px-6">
-        <div className="mx-auto max-w-5xl space-y-12">
-          <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">About Me</h2>
-          <div className="grid md:grid-cols-2 gap-12">
-            <div className="space-y-6 text-lg text-neutral-400 leading-relaxed">
-              <p>
-                I’m a 3rd-year Electronics and Computer Engineering student at VIT Chennai, passionate about embedded systems, IoT, and hands-on hardware development.
-              </p>
-              <p>
-                I love working with microcontrollers, sensors, and real-time decision systems, and I enjoy turning ideas into functional prototypes.
-              </p>
-            </div>
-            <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="rounded-lg bg-neutral-900 p-3"><Cpu className="text-white" /></div>
-                <div>
-                  <h3 className="text-xl font-semibold text-white">Embedded Systems</h3>
-                  <p className="text-neutral-500">8051, ESP32, peripherals and sensor integration.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="rounded-lg bg-neutral-900 p-3"><Bot className="text-white" /></div>
-                <div>
-                  <h3 className="text-xl font-semibold text-white">IoT & Automation</h3>
-                  <p className="text-neutral-500">Real-time control systems, wireless communication, automation logic, ESP-based web servers.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="rounded-lg bg-neutral-900 p-3"><CircuitBoard className="text-white" /></div>
-                <div>
-                  <h3 className="text-xl font-semibold text-white">VLSI & Circuit Design</h3>
-                  <p className="text-neutral-500">Analog design, FinFET-based circuits, Cadence Virtuoso, DAC/Op-Amp design.</p>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="relative w-full">
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <DotGrid
+            dotSize={2}
+            gap={24}
+            baseColor="#262626"
+            activeColor="#525252"
+            proximity={100}
+            shockRadius={200}
+            shockStrength={2}
+            resistance={750}
+            returnDuration={1.5}
+            className="h-full w-full"
+          />
         </div>
-      </section>
 
-      <section id="projects" className="py-24 md:py-32 px-6 bg-neutral-950">
-        <div className="mx-auto max-w-6xl space-y-16">
-          <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl text-center">My Projects</h2>
-          <div className="w-full">
-            <MagicBento
-              items={[
-                {
-                  id: 1,
-                  title: '8-Bit R-2R DAC using FinFET',
-                  description: 'Designed and simulated an energy-efficient 8-bit R-2R DAC entirely using 18nm FinFET devices. Integrated a two-stage FinFET op-amp to ensure stable, linear analog output. Achieved low power consumption and compact layout using Cadence Virtuoso.',
-                  tags: ['FinFET', 'Op-Amp', 'Cadence Virtuoso'],
-                  color: 'rgba(23, 23, 23, 0.5)' // neutral-900/50 equivalent
-                },
-                {
-                  id: 2,
-                  title: 'CineRate',
-                  description: 'Built a full-stack movie review website where users can rate films, add favorites, contribute new movies, and sign in with Google Authentication. Developed the UI with Next.js and Tailwind, and managed authentication + database using Supabase.',
-                  tags: ['Next.js', 'Supabase', 'Tailwind'],
-                  color: 'rgba(23, 23, 23, 0.5)'
-                },
-                {
-                  id: 3,
-                  title: 'IoT-Based Home Automation System',
-                  description: 'Developed an ESP32-based smart home controller that automates lights and fans using real-time sensor data. Supports Auto and Manual modes via a web interface hosted on the ESP32. Integrated DHT11, LDR, IR, ultrasonic sensors, and relay control.',
-                  tags: ['ESP32', 'Embedded C', 'IoT'],
-                  color: 'rgba(23, 23, 23, 0.5)'
-                },
-                {
-                  id: 4,
-                  title: 'Motion & Time-Based Streetlight Controller',
-                  description: 'Created a smart streetlight system using the 8051 microcontroller with RTC-based scheduling and motion-activated brightness control. Implemented PWM dimming to optimize energy use during low-traffic hours.',
-                  tags: ['8051', 'Embedded C', 'Sensors'],
-                  color: 'rgba(23, 23, 23, 0.5)'
-                }
-              ]}
-              spotlightRadius={150}
-              glowColor="255, 255, 255"
-              enableTilt={true}
-              textAutoHide={false}
-            />
-          </div>
-        </div>
-      </section>
+        <div className="relative z-10 pointer-events-none [&>*]:pointer-events-auto">
+          <section id="about" className="py-24 md:py-32 px-6">
+            <div className="mx-auto max-w-5xl space-y-12">
+              <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">About Me</h2>
+              <div className="grid md:grid-cols-2 gap-12">
+                <div className="space-y-6 text-lg text-neutral-400 leading-relaxed">
+                  <p>
+                    I’m a 3rd-year Electronics and Computer Engineering student at VIT Chennai, passionate about embedded systems, IoT, and hands-on hardware development.
+                  </p>
+                  <p>
+                    I love working with microcontrollers, sensors, and real-time decision systems, and I enjoy turning ideas into functional prototypes.
+                  </p>
+                </div>
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="rounded-lg bg-neutral-900/50 backdrop-blur-sm p-3 border border-neutral-800"><Cpu className="text-white" /></div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-white">Embedded Systems</h3>
+                      <p className="text-neutral-500">8051, ESP32, peripherals and sensor integration.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="rounded-lg bg-neutral-900/50 backdrop-blur-sm p-3 border border-neutral-800"><Bot className="text-white" /></div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-white">IoT & Automation</h3>
+                      <p className="text-neutral-500">Real-time control systems, wireless communication, automation logic, ESP-based web servers.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="rounded-lg bg-neutral-900/50 backdrop-blur-sm p-3 border border-neutral-800"><CircuitBoard className="text-white" /></div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-white">VLSI & Circuit Design</h3>
+                      <p className="text-neutral-500">Analog design, FinFET-based circuits, Cadence Virtuoso, DAC/Op-Amp design.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
-      <section id="contact" className="py-24 md:py-32 px-6">
-        <div className="mx-auto max-w-3xl text-center space-y-8">
-          <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">Let&apos;s Connect</h2>
-          <p className="text-lg text-neutral-400">
-            Whether it’s embedded systems, IoT projects, or engineering ideas -
-            I’d love to collaborate and explore new opportunities.
-          </p>
-          <a href="https://www.linkedin.com/in/anirudh-ramesh-407445206/" target="_blank" rel="noopener noreferrer" className="inline-block rounded-full bg-white px-8 py-4 text-lg font-bold text-black transition hover:bg-neutral-200">
-            Connect on LinkedIn
-          </a>
+          <section id="projects" className="py-24 md:py-32 px-6">
+            <div className="mx-auto max-w-6xl space-y-16">
+              <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl text-center">My Projects</h2>
+              <div className="w-full">
+                <MagicBento
+                  items={[
+                    {
+                      id: 1,
+                      title: '8-Bit R-2R DAC using FinFET',
+                      description: 'Designed and simulated an energy-efficient 8-bit R-2R DAC entirely using 18nm FinFET devices. Integrated a two-stage FinFET op-amp to ensure stable, linear analog output. Achieved low power consumption and compact layout using Cadence Virtuoso.',
+                      tags: ['FinFET', 'Op-Amp', 'Cadence Virtuoso'],
+                      color: 'rgba(23, 23, 23, 0.8)'
+                    },
+                    {
+                      id: 2,
+                      title: 'CineRate',
+                      description: 'Built a full-stack movie review website where users can rate films, add favorites, contribute new movies, and sign in with Google Authentication. Developed the UI with Next.js and Tailwind, and managed authentication + database using Supabase.',
+                      tags: ['Next.js', 'Supabase', 'Tailwind'],
+                      color: 'rgba(23, 23, 23, 0.8)'
+                    },
+                    {
+                      id: 3,
+                      title: 'IoT-Based Home Automation System',
+                      description: 'Developed an ESP32-based smart home controller that automates lights and fans using real-time sensor data. Supports Auto and Manual modes via a web interface hosted on the ESP32. Integrated DHT11, LDR, IR, ultrasonic sensors, and relay control.',
+                      tags: ['ESP32', 'Embedded C', 'IoT'],
+                      color: 'rgba(23, 23, 23, 0.8)'
+                    },
+                    {
+                      id: 4,
+                      title: 'Motion & Time-Based Streetlight Controller',
+                      description: 'Created a smart streetlight system using the 8051 microcontroller with RTC-based scheduling and motion-activated brightness control. Implemented PWM dimming to optimize energy use during low-traffic hours.',
+                      tags: ['8051', 'Embedded C', 'Sensors'],
+                      color: 'rgba(23, 23, 23, 0.8)'
+                    }
+                  ]}
+                  spotlightRadius={150}
+                  glowColor="255, 255, 255"
+                  enableTilt={true}
+                  textAutoHide={false}
+                />
+              </div>
+            </div>
+          </section>
+
+          <section id="contact" className="py-24 md:py-32 px-6">
+            <div className="mx-auto max-w-3xl text-center space-y-8">
+              <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">Let&apos;s Connect</h2>
+              <p className="text-lg text-neutral-400">
+                Whether it’s embedded systems, IoT projects, or engineering ideas -
+                I’d love to collaborate and explore new opportunities.
+              </p>
+              <a href="https://www.linkedin.com/in/anirudh-ramesh-407445206/" target="_blank" rel="noopener noreferrer" className="inline-block rounded-full bg-white px-8 py-4 text-lg font-bold text-black transition hover:bg-neutral-200">
+                Connect on LinkedIn
+              </a>
+            </div>
+          </section>
         </div>
-      </section>
+      </div>
 
       <Footer />
     </main>
