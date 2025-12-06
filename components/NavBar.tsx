@@ -35,7 +35,7 @@ export const NavBar = () => {
             )}
         >
             <Link href="/" className="text-lg font-bold tracking-tight text-white hover:opacity-80 transition-opacity">
-                Anirudh Ramesh
+                Anirudh
             </Link>
             <div className="flex gap-6">
                 {navItems.map((item) => (

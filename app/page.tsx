@@ -1,7 +1,7 @@
 import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
 import { BlurText } from "@/components/ui/BlurText";
-import { SpotlightCard } from "@/components/ui/SpotlightCard";
+import MagicBento from "@/components/ui/MagicBento";
 import LightPillar from "@/components/ui/LightPillar";
 import { ArrowRight, Code, Terminal, Bot, Cpu, CircuitBoard } from "lucide-react";
 
@@ -27,18 +27,18 @@ export default function Home() {
           />
         </div>
 
-        <div className="relative z-10 max-w-4xl space-y-8">
+        <div className="relative z-10 max-w-4xl space-y-8 mx-auto">
           <BlurText
             text="Anirudh Ramesh"
-            className="text-4xl font-bold tracking-tighter sm:text-7xl md:text-8xl lg:text-9xl text-white"
+            className="text-4xl font-bold tracking-tighter sm:text-7xl md:text-8xl lg:text-9xl text-white justify-center"
             delay={0.1}
           />
           <BlurText
             text="Embedded Systems & IoT Engineer"
-            className="text-2xl font-medium tracking-tight sm:text-4xl md:text-5xl text-white drop-shadow-lg"
+            className="text-2xl font-medium tracking-tight sm:text-4xl md:text-5xl text-white/80 drop-shadow-lg justify-center"
             delay={0.2}
           />
-          <p className="mx-auto max-w-xl text-lg text-neutral-200 md:text-xl leading-relaxed drop-shadow-md">
+          <p className="mx-auto max-w-xl text-lg text-white/60 md:text-xl leading-relaxed drop-shadow-md">
             Building practical hardware systems with microcontrollers, sensors, and real-time automation. Passionate about embedded design, IoT systems, and creating impactful engineering projects.
           </p>
           <div className="flex justify-center gap-4">
@@ -93,75 +93,44 @@ export default function Home() {
 
       <section id="projects" className="py-24 md:py-32 px-6 bg-neutral-950">
         <div className="mx-auto max-w-6xl space-y-16">
-          <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl text-center">Selected Projects</h2>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <SpotlightCard className="h-full flex flex-col justify-between group">
-              <div className="space-y-4">
-                <div className="h-48 w-full rounded-lg bg-neutral-900/50 flex items-center justify-center text-neutral-700 font-mono text-xs p-4 border border-dashed border-neutral-800">
-                  R-2R DAC
-                </div>
-                <h3 className="text-2xl font-semibold text-white">8-Bit R-2R DAC using FinFET</h3>
-                <p className="text-neutral-400 text-sm">
-                  Designed and simulated an energy-efficient 8-bit R-2R DAC entirely using 18nm FinFET devices. Integrated a two-stage FinFET op-amp to ensure stable, linear analog output. Achieved low power consumption and compact layout using Cadence Virtuoso.
-                </p>
-              </div>
-              <div className="pt-6 flex flex-wrap gap-2 text-xs text-neutral-500 font-mono">
-                <span className="bg-neutral-900 px-2 py-1 rounded">FinFET</span>
-                <span className="bg-neutral-900 px-2 py-1 rounded">Op-Amp</span>
-                <span className="bg-neutral-900 px-2 py-1 rounded">Cadence Virtuoso</span>
-              </div>
-            </SpotlightCard>
-
-            <SpotlightCard className="h-full flex flex-col justify-between group">
-              <div className="space-y-4">
-                <div className="h-48 w-full rounded-lg bg-neutral-900/50 flex items-center justify-center text-neutral-700 font-mono text-xs p-4 border border-dashed border-neutral-800">
-                  CineRate
-                </div>
-                <h3 className="text-2xl font-semibold text-white">CineRate</h3>
-                <p className="text-neutral-400 text-sm">
-                  Built a full-stack movie review website where users can rate films, add favorites, contribute new movies, and sign in with Google Authentication. Developed the UI with Next.js and Tailwind, and managed authentication + database using Supabase.
-                </p>
-              </div>
-              <div className="pt-6 flex flex-wrap gap-2 text-xs text-neutral-500 font-mono">
-                <span className="bg-neutral-900 px-2 py-1 rounded">Next.js</span>
-                <span className="bg-neutral-900 px-2 py-1 rounded">Supabase</span>
-                <span className="bg-neutral-900 px-2 py-1 rounded">Tailwind</span>
-              </div>
-            </SpotlightCard>
-
-            <SpotlightCard className="h-full flex flex-col justify-between group">
-              <div className="space-y-4">
-                <div className="h-48 w-full rounded-lg bg-neutral-900/50 flex items-center justify-center text-neutral-700 font-mono text-xs p-4 border border-dashed border-neutral-800">
-                  IoT
-                </div>
-                <h3 className="text-2xl font-semibold text-white">IoT-Based Home Automation System</h3>
-                <p className="text-neutral-400 text-sm">
-                  Developed an ESP32-based smart home controller that automates lights and fans using real-time sensor data. Supports Auto and Manual modes via a web interface hosted on the ESP32. Integrated DHT11, LDR, IR, ultrasonic sensors, and relay control.
-                </p>
-              </div>
-              <div className="pt-6 flex flex-wrap gap-2 text-xs text-neutral-500 font-mono">
-                <span className="bg-neutral-900 px-2 py-1 rounded">ESP32</span>
-                <span className="bg-neutral-900 px-2 py-1 rounded">Embedded C</span>
-                <span className="bg-neutral-900 px-2 py-1 rounded">IoT</span>
-              </div>
-            </SpotlightCard>
-
-            <SpotlightCard className="h-full flex flex-col justify-between group">
-              <div className="space-y-4">
-                <div className="h-48 w-full rounded-lg bg-neutral-900/50 flex items-center justify-center text-neutral-700 font-mono text-xs p-4 border border-dashed border-neutral-800">
-                  Infrastructure
-                </div>
-                <h3 className="text-2xl font-semibold text-white">Motion & Time-Based Streetlight Controller</h3>
-                <p className="text-neutral-400 text-sm">
-                  Created a smart streetlight system using the 8051 microcontroller with RTC-based scheduling and motion-activated brightness control. Implemented PWM dimming to optimize energy use during low-traffic hours.
-                </p>
-              </div>
-              <div className="pt-6 flex flex-wrap gap-2 text-xs text-neutral-500 font-mono">
-                <span className="bg-neutral-900 px-2 py-1 rounded">8051</span>
-                <span className="bg-neutral-900 px-2 py-1 rounded">Embedded C</span>
-                <span className="bg-neutral-900 px-2 py-1 rounded">Sensors</span>
-              </div>
-            </SpotlightCard>
+          <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl text-center">My Projects</h2>
+          <div className="w-full">
+            <MagicBento
+              items={[
+                {
+                  id: 1,
+                  title: '8-Bit R-2R DAC using FinFET',
+                  description: 'Designed and simulated an energy-efficient 8-bit R-2R DAC entirely using 18nm FinFET devices. Integrated a two-stage FinFET op-amp to ensure stable, linear analog output. Achieved low power consumption and compact layout using Cadence Virtuoso.',
+                  tags: ['FinFET', 'Op-Amp', 'Cadence Virtuoso'],
+                  color: 'rgba(23, 23, 23, 0.5)' // neutral-900/50 equivalent
+                },
+                {
+                  id: 2,
+                  title: 'CineRate',
+                  description: 'Built a full-stack movie review website where users can rate films, add favorites, contribute new movies, and sign in with Google Authentication. Developed the UI with Next.js and Tailwind, and managed authentication + database using Supabase.',
+                  tags: ['Next.js', 'Supabase', 'Tailwind'],
+                  color: 'rgba(23, 23, 23, 0.5)'
+                },
+                {
+                  id: 3,
+                  title: 'IoT-Based Home Automation System',
+                  description: 'Developed an ESP32-based smart home controller that automates lights and fans using real-time sensor data. Supports Auto and Manual modes via a web interface hosted on the ESP32. Integrated DHT11, LDR, IR, ultrasonic sensors, and relay control.',
+                  tags: ['ESP32', 'Embedded C', 'IoT'],
+                  color: 'rgba(23, 23, 23, 0.5)'
+                },
+                {
+                  id: 4,
+                  title: 'Motion & Time-Based Streetlight Controller',
+                  description: 'Created a smart streetlight system using the 8051 microcontroller with RTC-based scheduling and motion-activated brightness control. Implemented PWM dimming to optimize energy use during low-traffic hours.',
+                  tags: ['8051', 'Embedded C', 'Sensors'],
+                  color: 'rgba(23, 23, 23, 0.5)'
+                }
+              ]}
+              spotlightRadius={150}
+              glowColor="255, 255, 255"
+              enableTilt={true}
+              textAutoHide={false}
+            />
           </div>
         </div>
       </section>
