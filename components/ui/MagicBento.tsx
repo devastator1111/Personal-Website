@@ -335,6 +335,79 @@ const GlobalSpotlight = ({
   const spotlightRef = useRef<HTMLDivElement | null>(null);
   const isInsideSection = useRef(false);
 
+  const lastMousePosition = useRef({ x: 0, y: 0 });
+
+  const updateSpotlight = useCallback((x: number, y: number) => {
+    if (!spotlightRef.current || !gridRef.current) return;
+
+    const section = gridRef.current.closest('.bento-section');
+    const rect = section?.getBoundingClientRect();
+
+    let mouseInside = false;
+    if (rect) {
+      mouseInside = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+    }
+
+    isInsideSection.current = mouseInside || false;
+    const cards = gridRef.current.querySelectorAll('.magic-bento-card') as NodeListOf<HTMLElement>;
+
+    if (!mouseInside) {
+      gsap.to(spotlightRef.current, {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+      cards.forEach(card => {
+        card.style.setProperty('--glow-intensity', '0');
+      });
+      return;
+    }
+
+    const { proximity, fadeDistance } = calculateSpotlightValues(spotlightRadius);
+    let minDistance = Infinity;
+
+    cards.forEach(card => {
+      const cardElement = card;
+      const cardRect = cardElement.getBoundingClientRect();
+      const centerX = cardRect.left + cardRect.width / 2;
+      const centerY = cardRect.top + cardRect.height / 2;
+      const distance =
+        Math.hypot(x - centerX, y - centerY) - Math.max(cardRect.width, cardRect.height) / 2;
+      const effectiveDistance = Math.max(0, distance);
+
+      minDistance = Math.min(minDistance, effectiveDistance);
+
+      let glowIntensity = 0;
+      if (effectiveDistance <= proximity) {
+        glowIntensity = 1;
+      } else if (effectiveDistance <= fadeDistance) {
+        glowIntensity = (fadeDistance - effectiveDistance) / (fadeDistance - proximity);
+      }
+
+      updateCardGlowProperties(cardElement, x, y, glowIntensity, spotlightRadius);
+    });
+
+    gsap.to(spotlightRef.current, {
+      left: x,
+      top: y,
+      duration: 0.1,
+      ease: 'power2.out'
+    });
+
+    const targetOpacity =
+      minDistance <= proximity
+        ? 0.8
+        : minDistance <= fadeDistance
+          ? ((fadeDistance - minDistance) / (fadeDistance - proximity)) * 0.8
+          : 0;
+
+    gsap.to(spotlightRef.current, {
+      opacity: targetOpacity,
+      duration: targetOpacity > 0 ? 0.2 : 0.5,
+      ease: 'power2.out'
+    });
+  }, [gridRef, spotlightRadius]);
+
   useEffect(() => {
     if (disableAnimations || !gridRef?.current || !enabled) return;
 
@@ -363,74 +436,12 @@ const GlobalSpotlight = ({
     spotlightRef.current = spotlight;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!spotlightRef.current || !gridRef.current) return;
+      lastMousePosition.current = { x: e.clientX, y: e.clientY };
+      updateSpotlight(e.clientX, e.clientY);
+    };
 
-      const section = gridRef.current.closest('.bento-section');
-      const rect = section?.getBoundingClientRect();
-
-      let mouseInside = false;
-      if (rect) {
-        mouseInside = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
-      }
-
-      isInsideSection.current = mouseInside || false;
-      const cards = gridRef.current.querySelectorAll('.magic-bento-card') as NodeListOf<HTMLElement>;
-
-      if (!mouseInside) {
-        gsap.to(spotlightRef.current, {
-          opacity: 0,
-          duration: 0.3,
-          ease: 'power2.out'
-        });
-        cards.forEach(card => {
-          card.style.setProperty('--glow-intensity', '0');
-        });
-        return;
-      }
-
-      const { proximity, fadeDistance } = calculateSpotlightValues(spotlightRadius);
-      let minDistance = Infinity;
-
-      cards.forEach(card => {
-        const cardElement = card;
-        const cardRect = cardElement.getBoundingClientRect();
-        const centerX = cardRect.left + cardRect.width / 2;
-        const centerY = cardRect.top + cardRect.height / 2;
-        const distance =
-          Math.hypot(e.clientX - centerX, e.clientY - centerY) - Math.max(cardRect.width, cardRect.height) / 2;
-        const effectiveDistance = Math.max(0, distance);
-
-        minDistance = Math.min(minDistance, effectiveDistance);
-
-        let glowIntensity = 0;
-        if (effectiveDistance <= proximity) {
-          glowIntensity = 1;
-        } else if (effectiveDistance <= fadeDistance) {
-          glowIntensity = (fadeDistance - effectiveDistance) / (fadeDistance - proximity);
-        }
-
-        updateCardGlowProperties(cardElement, e.clientX, e.clientY, glowIntensity, spotlightRadius);
-      });
-
-      gsap.to(spotlightRef.current, {
-        left: e.clientX,
-        top: e.clientY,
-        duration: 0.1,
-        ease: 'power2.out'
-      });
-
-      const targetOpacity =
-        minDistance <= proximity
-          ? 0.8
-          : minDistance <= fadeDistance
-            ? ((fadeDistance - minDistance) / (fadeDistance - proximity)) * 0.8
-            : 0;
-
-      gsap.to(spotlightRef.current, {
-        opacity: targetOpacity,
-        duration: targetOpacity > 0 ? 0.2 : 0.5,
-        ease: 'power2.out'
-      });
+    const handleScroll = () => {
+      updateSpotlight(lastMousePosition.current.x, lastMousePosition.current.y);
     };
 
     const handleMouseLeave = () => {
@@ -449,13 +460,15 @@ const GlobalSpotlight = ({
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('scroll', handleScroll);
       spotlightRef.current?.parentNode?.removeChild(spotlightRef.current);
     };
-  }, [gridRef, disableAnimations, enabled, spotlightRadius, glowColor]);
+  }, [gridRef, disableAnimations, enabled, spotlightRadius, glowColor, updateSpotlight]);
 
   return null;
 };
