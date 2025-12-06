@@ -168,7 +168,7 @@ export default function Home() {
 
       <section id="contact" className="py-24 md:py-32 px-6">
         <div className="mx-auto max-w-3xl text-center space-y-8">
-          <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">Let's Connect</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-white md:text-5xl">Let&apos;s Connect</h2>
           <p className="text-lg text-neutral-400">
             Whether it’s embedded systems, IoT projects, or engineering ideas -
             I’d love to collaborate and explore new opportunities.

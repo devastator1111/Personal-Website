@@ -14,7 +14,7 @@ interface LightPillarProps {
     pillarWidth?: number;
     pillarHeight?: number;
     noiseIntensity?: number;
-    mixBlendMode?: string;
+    mixBlendMode?: React.CSSProperties['mixBlendMode'];
     pillarRotation?: number;
 }
 
@@ -32,26 +32,21 @@ const LightPillar: React.FC<LightPillarProps> = ({
     mixBlendMode = 'screen',
     pillarRotation = 0
 }) => {
-    const containerRef = useRef(null);
-    const rafRef = useRef(null);
-    const rendererRef = useRef(null);
-    const materialRef = useRef(null);
-    const sceneRef = useRef(null);
-    const cameraRef = useRef(null);
-    const geometryRef = useRef(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const rafRef = useRef<number | null>(null);
+    const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+    const materialRef = useRef<THREE.ShaderMaterial | null>(null);
+    const sceneRef = useRef<THREE.Scene | null>(null);
+    const cameraRef = useRef<THREE.OrthographicCamera | null>(null);
+    const geometryRef = useRef<THREE.PlaneGeometry | null>(null);
     const mouseRef = useRef(new THREE.Vector2(0, 0));
     const timeRef = useRef(0);
-    const [webGLSupported, setWebGLSupported] = useState(true);
-
-    // Check WebGL support
-    useEffect(() => {
+    const [webGLSupported, setWebGLSupported] = useState(() => {
+        if (typeof window === 'undefined') return true;
         const canvas = document.createElement('canvas');
         const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        if (!gl) {
-            setWebGLSupported(false);
-            console.warn('WebGL is not supported in this browser');
-        }
-    }, []);
+        return !!gl;
+    });
 
     useEffect(() => {
         if (!containerRef.current || !webGLSupported) return;
@@ -76,8 +71,9 @@ const LightPillar: React.FC<LightPillarProps> = ({
                 stencil: false,
                 depth: false
             });
-        } catch (error) {
-            console.error('Failed to create WebGL renderer:', error);
+        } catch {
+            // console.error('Failed to create WebGL renderer:', error);
+            // eslint-disable-next-line
             setWebGLSupported(false);
             return;
         }
@@ -88,7 +84,7 @@ const LightPillar: React.FC<LightPillarProps> = ({
         rendererRef.current = renderer;
 
         // Convert hex colors to RGB
-        const parseColor = hex => {
+        const parseColor = (hex: string) => {
             const color = new THREE.Color(hex);
             return new THREE.Vector3(color.r, color.g, color.b);
         };
@@ -250,8 +246,8 @@ const LightPillar: React.FC<LightPillarProps> = ({
         scene.add(mesh);
 
         // Mouse interaction - throttled for performance
-        let mouseMoveTimeout = null;
-        const handleMouseMove = event => {
+        let mouseMoveTimeout: number | null = null;
+        const handleMouseMove = (event: MouseEvent) => {
             if (!interactive) return;
 
             if (mouseMoveTimeout) return;
@@ -275,7 +271,7 @@ const LightPillar: React.FC<LightPillarProps> = ({
         const targetFPS = 60;
         const frameTime = 1000 / targetFPS;
 
-        const animate = currentTime => {
+        const animate = (currentTime: number) => {
             if (!materialRef.current || !rendererRef.current || !sceneRef.current || !cameraRef.current) return;
 
             const deltaTime = currentTime - lastTime;
@@ -292,7 +288,7 @@ const LightPillar: React.FC<LightPillarProps> = ({
         rafRef.current = requestAnimationFrame(animate);
 
         // Handle resize with debouncing
-        let resizeTimeout = null;
+        let resizeTimeout: number | null = null;
         const handleResize = () => {
             if (resizeTimeout) {
                 clearTimeout(resizeTimeout);
