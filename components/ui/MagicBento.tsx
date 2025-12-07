@@ -483,7 +483,12 @@ const useMobileDetection = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
+    const checkMobile = () => {
+      // Check for mobile breakpoint OR touch capability
+      const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const isSmallScreen = window.innerWidth <= 1024; // Increased to cover iPads/tablets
+      setIsMobile(isSmallScreen || hasTouch);
+    };
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
