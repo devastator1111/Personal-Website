@@ -358,8 +358,18 @@ const LightPillar: React.FC<LightPillarProps> = ({
 
     if (!webGLSupported || isMobile) {
         return (
-            <div className={`light-pillar-fallback ${className}`} style={{ mixBlendMode, background: `linear-gradient(to bottom, ${topColor}, ${bottomColor} 0%, transparent 70%)`, opacity: 0.3, filter: 'blur(40px)', width: '100%', height: '100%' }}>
-            </div>
+            <div
+                className={`light-pillar-fallback ${className}`}
+                style={{
+                    mixBlendMode,
+                    background: `radial-gradient(ellipse 30% 60% at 50% -10%, ${topColor}, transparent 70%), radial-gradient(circle at 50% 0%, ${topColor}, transparent 30%)`,
+                    opacity: 0.6,
+                    filter: 'blur(60px)',
+                    width: '100%',
+                    height: '100%',
+                    transform: 'scaleY(1.5)'
+                }}
+            />
         );
     }
 
