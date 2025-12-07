@@ -4,7 +4,7 @@ import { BlurText } from "@/components/ui/BlurText";
 import MagicBento from "@/components/ui/MagicBento";
 import LightPillar from "@/components/ui/LightPillar";
 import DotGrid from "@/components/ui/DotGrid";
-import { ArrowRight, Code, Terminal, Bot, Cpu, CircuitBoard } from "lucide-react";
+import { ArrowRight, Code, Terminal, Bot, Cpu, CircuitBoard, ArrowDown } from "lucide-react";
 
 export default function Home() {
   return (
@@ -44,9 +44,9 @@ export default function Home() {
           </p>
           <div className="flex justify-center gap-4">
             <a href="#projects" className="group flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-neutral-200">
-              View Projects <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              View Projects <ArrowDown className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </a>
-            <a href="#contact" className="rounded-full border border-neutral-800 bg-neutral-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-neutral-900">
+            <a href="#contact" className="rounded-full bg-neutral-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-neutral-900">
               Contact Me
             </a>
           </div>
