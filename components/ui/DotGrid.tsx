@@ -135,12 +135,16 @@ const DotGrid = ({
         const ctx = canvas.getContext('2d');
         if (ctx) ctx.scale(dpr, dpr);
 
-        const cols = Math.floor((width + gap) / (dotSize + gap));
-        const rows = Math.floor((height + gap) / (dotSize + gap));
-        const cell = dotSize + gap;
+        // Mobile optimization: significantly increase gap to reduce dot count
+        const isMobile = window.innerWidth < 768;
+        const adjustedGap = isMobile ? gap * 2 : gap; // Double the gap on mobile (4x fewer dots)
 
-        const gridW = cell * cols - gap;
-        const gridH = cell * rows - gap;
+        const cols = Math.floor((width + adjustedGap) / (dotSize + adjustedGap));
+        const rows = Math.floor((height + adjustedGap) / (dotSize + adjustedGap));
+        const cell = dotSize + adjustedGap;
+
+        const gridW = cell * cols - adjustedGap;
+        const gridH = cell * rows - adjustedGap;
 
         const extraX = width - gridW;
         const extraY = height - gridH;

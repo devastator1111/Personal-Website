@@ -49,7 +49,8 @@ const LightPillar: React.FC<LightPillarProps> = ({
     });
 
     useEffect(() => {
-        if (!containerRef.current || !webGLSupported) return;
+        const isMobile = window.innerWidth < 768;
+        if (!containerRef.current || !webGLSupported || isMobile) return;
 
         const container = containerRef.current;
         const width = container.clientWidth;
@@ -349,10 +350,15 @@ const LightPillar: React.FC<LightPillarProps> = ({
         webGLSupported
     ]);
 
-    if (!webGLSupported) {
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        setIsMobile(window.innerWidth < 768);
+    }, []);
+
+    if (!webGLSupported || isMobile) {
         return (
-            <div className={`light-pillar-fallback ${className}`} style={{ mixBlendMode }}>
-                WebGL not supported
+            <div className={`light-pillar-fallback ${className}`} style={{ mixBlendMode, background: `linear-gradient(to bottom, ${topColor}, ${bottomColor} 0%, transparent 70%)`, opacity: 0.3, filter: 'blur(40px)', width: '100%', height: '100%' }}>
             </div>
         );
     }
