@@ -137,10 +137,10 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
                         className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-2xl bg-neutral-900 border border-neutral-800 shadow-2xl scrollbar-hide"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Close Button */}
+                        {/* Close Button - Top Right */}
                         <button
                             onClick={onClose}
-                            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-neutral-800/80 hover:bg-neutral-700 text-white transition-colors"
+                            className="absolute top-4 right-4 z-[20] p-2 rounded-full bg-neutral-800/80 hover:bg-neutral-700 text-white transition-colors"
                         >
                             <X size={20} />
                         </button>
@@ -159,13 +159,13 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
                                         />
                                     </div>
 
-                                    {/* Zoom Button */}
+                                    {/* Zoom Button - Top Left to avoid Close Button overlap on mobile */}
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setIsZoomed(true);
                                         }}
-                                        className="absolute top-4 right-4 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                        className="absolute top-4 left-4 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
                                         title="View Fullscreen"
                                     >
                                         <Maximize2 size={20} />

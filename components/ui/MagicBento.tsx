@@ -313,6 +313,7 @@ const ParticleCard = ({
       ref={cardRef}
       className={`${className} particle-container`}
       style={{ ...style, position: 'relative', overflow: 'hidden' }}
+      onClick={onClick}
     >
       {children}
     </div>
@@ -683,9 +684,25 @@ const MagicBento = ({
                   );
                 };
 
+                // Only attach click listener to the element if animations are enabled
+                // Otherwise, it's handled by the parent div props spread (if we were using one, but we aren't for the raw div)
+                // Actually, for the non-particle card (this fallback), we need to ensure onClick works.
+                // The current implementation attaches 'click' event listener. 
+                // However, we need to make sure we don't double fire if we add it to the prop too.
+                // Let's rely on React prop for consistency if possible, but here we are returning a div with ref.
+                // We'll add onClick prop to the div below.
+
                 el.addEventListener('mousemove', handleMouseMove);
                 el.addEventListener('mouseleave', handleMouseLeave);
-                el.addEventListener('click', handleClick);
+                // click is handled by prop now
+              }}
+              onClick={(e) => {
+                if (card.onClick) card.onClick();
+                // ripple logic could be added here or kept in ref if desired, but for now specific ripple is in ref
+                // Actually, let's keep ripple in ref but call click via prop to be safe? 
+                // The ref logic handles ripple. We can leave the ref click handler for ripple ONLY 
+                // and use this prop for the actual action?
+                // Simpler: Just rely on the prop for the action.
               }}
             >
               <div className="magic-bento-card__header">
