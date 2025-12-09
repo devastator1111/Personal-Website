@@ -140,7 +140,7 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
                         {/* Close Button - Top Right */}
                         <button
                             onClick={onClose}
-                            className="absolute top-4 right-4 z-[20] p-2 rounded-full bg-neutral-800/80 hover:bg-neutral-700 text-white transition-colors"
+                            className="absolute top-4 right-4 z-[20] p-2 rounded-full bg-neutral-800/80 hover:bg-neutral-700 text-white transition-colors cursor-pointer"
                         >
                             <X size={20} />
                         </button>
@@ -150,13 +150,24 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
                             {project.images && project.images.length > 0 && (
                                 <div className="w-full md:w-1/2 bg-neutral-950/50 relative group min-h-[300px] md:min-h-[500px]">
                                     <div className="w-full h-full relative aspect-video md:aspect-auto md:h-full group-hover:cursor-pointer" onClick={() => setIsZoomed(true)}>
-                                        <Image
-                                            src={project.images[currentImageIndex]}
-                                            alt={`${project.title} - Image ${currentImageIndex + 1}`}
-                                            fill
-                                            className="object-contain object-center"
-                                            priority
-                                        />
+                                        <AnimatePresence mode="wait">
+                                            <motion.div
+                                                key={currentImageIndex}
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="absolute inset-0 w-full h-full"
+                                            >
+                                                <Image
+                                                    src={project.images[currentImageIndex]}
+                                                    alt={`${project.title} - Image ${currentImageIndex + 1}`}
+                                                    fill
+                                                    className="object-contain object-center"
+                                                    priority
+                                                />
+                                            </motion.div>
+                                        </AnimatePresence>
                                     </div>
 
                                     {/* Zoom Button - Top Left to avoid Close Button overlap on mobile */}
@@ -165,7 +176,7 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
                                             e.stopPropagation();
                                             setIsZoomed(true);
                                         }}
-                                        className="absolute top-4 left-4 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
+                                        className="absolute top-4 left-4 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
                                         title="View Fullscreen"
                                     >
                                         <Maximize2 size={20} />
@@ -175,13 +186,13 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
                                         <>
                                             <button
                                                 onClick={prevImage}
-                                                className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                                className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
                                             >
                                                 <ChevronLeft size={24} />
                                             </button>
                                             <button
                                                 onClick={nextImage}
-                                                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
                                             >
                                                 <ChevronRight size={24} />
                                             </button>
@@ -239,31 +250,45 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
                                 onClick={() => setIsZoomed(false)}
                             >
                                 <button
-                                    onClick={() => setIsZoomed(false)}
-                                    className="absolute top-4 right-4 p-3 rounded-full bg-neutral-800 hover:bg-neutral-700 text-white transition-colors z-[120]"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsZoomed(false);
+                                    }}
+                                    className="absolute top-4 right-4 p-3 rounded-full bg-neutral-800 hover:bg-neutral-700 text-white transition-colors z-[120] cursor-pointer"
                                 >
                                     <X size={24} />
                                 </button>
                                 <div className="relative w-full h-full max-w-7xl max-h-[90vh]">
-                                    <Image
-                                        src={project.images[currentImageIndex]}
-                                        alt={`${project.title} - Fullscreen Image ${currentImageIndex + 1}`}
-                                        fill
-                                        className="object-contain" // Changed to contain for full visibility
-                                        priority
-                                    />
+                                    <AnimatePresence mode="wait">
+                                        <motion.div
+                                            key={currentImageIndex}
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="absolute inset-0 w-full h-full"
+                                        >
+                                            <Image
+                                                src={project.images[currentImageIndex]}
+                                                alt={`${project.title} - Fullscreen Image ${currentImageIndex + 1}`}
+                                                fill
+                                                className="object-contain" // Changed to contain for full visibility
+                                                priority
+                                            />
+                                        </motion.div>
+                                    </AnimatePresence>
 
                                     {project.images.length > 1 && (
                                         <>
                                             <button
                                                 onClick={prevImage}
-                                                className="absolute left-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors z-[120]"
+                                                className="absolute left-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors z-[120] cursor-pointer"
                                             >
                                                 <ChevronLeft size={32} />
                                             </button>
                                             <button
                                                 onClick={nextImage}
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors z-[120]"
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors z-[120] cursor-pointer"
                                             >
                                                 <ChevronRight size={32} />
                                             </button>
