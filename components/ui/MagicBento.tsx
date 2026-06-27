@@ -534,11 +534,11 @@ const MagicBento = ({
 
       <BentoCardGrid gridRef={gridRef}>
         {items.map((card, index) => {
-          const baseClassName = `magic-bento-card ${textAutoHide ? 'magic-bento-card--text-autohide' : ''} ${enableBorderGlow ? 'magic-bento-card--border-glow' : ''}`;
+          const baseClassName = `group magic-bento-card ${textAutoHide ? 'magic-bento-card--text-autohide' : ''} ${enableBorderGlow ? 'magic-bento-card--border-glow' : ''}`;
           const cardProps = {
             className: baseClassName,
             style: {
-              backgroundColor: card.color || '#060010',
+              backgroundColor: card.color || 'var(--card)',
               '--glow-color': glowColor
             } as React.CSSProperties
           };
@@ -566,9 +566,9 @@ const MagicBento = ({
                 </div>
                 {/* Render tags if they exist */}
                 {card.tags && card.tags.length > 0 && (
-                  <div className="pt-4 flex flex-wrap gap-2 text-xs text-neutral-500 font-mono mt-auto relative z-10 w-full">
+                  <div className="pt-4 flex flex-wrap gap-2 text-xs font-medium mt-auto relative z-10 w-full">
                     {card.tags.map(tag => (
-                      <span key={tag} className="bg-neutral-900 px-2 py-1 rounded">{tag}</span>
+                      <span key={tag} className="bg-secondary text-secondary-foreground px-2.5 py-1 rounded-full">{tag}</span>
                     ))}
                   </div>
                 )}
@@ -714,9 +714,9 @@ const MagicBento = ({
                 <p className="magic-bento-card__description">{card.description}</p>
               </div>
               {card.tags && card.tags.length > 0 && (
-                <div className="pt-4 flex flex-wrap gap-2 text-xs text-neutral-500 font-mono mt-auto relative z-10 w-full">
+                <div className="pt-4 flex flex-wrap gap-2 text-xs font-medium mt-auto relative z-10 w-full">
                   {card.tags.map(tag => (
-                    <span key={tag} className="bg-neutral-900 px-2 py-1 rounded">{tag}</span>
+                    <span key={tag} className="bg-secondary text-secondary-foreground px-2.5 py-1 rounded-full">{tag}</span>
                   ))}
                 </div>
               )}

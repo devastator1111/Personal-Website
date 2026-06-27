@@ -36,7 +36,7 @@ function Linkify({ text }: { text: string }) {
                         href={part}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-300 underline break-all"
+                        className="text-lilac-foreground font-medium underline underline-offset-2 break-all hover:opacity-80"
                     >
                         {part}
                     </a>
@@ -134,13 +134,13 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ duration: 0.2, type: "spring", stiffness: 300, damping: 25 }}
-                        className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-2xl bg-neutral-900 border border-neutral-800 shadow-2xl scrollbar-hide"
+                        className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-2xl bg-card border border-border shadow-2xl scrollbar-hide"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Close Button - Top Right */}
                         <button
                             onClick={onClose}
-                            className="absolute top-4 right-4 z-[20] p-2 rounded-full bg-neutral-800/80 hover:bg-neutral-700 text-white transition-colors cursor-pointer"
+                            className="absolute top-4 right-4 z-[20] p-2 rounded-full border border-border bg-card/80 hover:bg-secondary text-foreground backdrop-blur-sm transition-colors cursor-pointer"
                         >
                             <X size={20} />
                         </button>
@@ -148,7 +148,7 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
                         <div className="flex flex-col md:flex-row">
                             {/* Image Carousel Section */}
                             {project.images && project.images.length > 0 && (
-                                <div className="w-full md:w-1/2 bg-neutral-950/50 relative group min-h-[300px] md:min-h-[500px]">
+                                <div className="w-full md:w-1/2 bg-secondary/40 relative group min-h-[300px] md:min-h-[500px]">
                                     <div className="w-full h-full relative aspect-video md:aspect-auto md:h-full group-hover:cursor-pointer" onClick={() => setIsZoomed(true)}>
                                         <AnimatePresence mode="wait">
                                             <motion.div
@@ -214,22 +214,22 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
                             {/* Content Section */}
                             <div className={`w-full ${project.images && project.images.length > 0 ? 'md:w-1/2' : 'md:w-full'} p-6 md:p-8 flex flex-col`}>
                                 <div className="mb-6">
-                                    <h2 className="text-3xl font-bold text-white mb-2 pr-10">{project.title}</h2>
+                                    <h2 className="font-display text-3xl font-semibold text-foreground mb-2 pr-10">{project.title}</h2>
                                 </div>
 
-                                <div className="prose prose-invert max-w-none text-neutral-300 mb-8 space-y-4">
+                                <div className="max-w-none text-muted-foreground mb-8 space-y-4">
                                     <p className="whitespace-pre-wrap leading-relaxed">
                                         <Linkify text={project.longDescription || project.description} />
                                     </p>
                                 </div>
 
                                 {project.link && (
-                                    <div className="mt-auto pt-6 border-t border-neutral-800">
+                                    <div className="mt-auto pt-6 border-t border-border">
                                         <a
                                             href={project.link}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-semibold hover:bg-neutral-200 transition-colors"
+                                            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:brightness-95 transition"
                                         >
                                             View Live <ExternalLink size={16} />
                                         </a>

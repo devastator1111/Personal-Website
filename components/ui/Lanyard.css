@@ -1,0 +1,11 @@
+.lanyard-wrapper {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  width: 100%;
+  height: 100%;
+  /* sits above the hero content but lets clicks pass through; the 3D card
+     still receives pointer events via the Canvas eventSource (the hero). */
+  pointer-events: none;
+  touch-action: none;
+}

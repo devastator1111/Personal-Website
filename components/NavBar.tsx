@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import GlassSurface from "@/components/ui/GlassSurface";
 
 export function cn(...inputs: (string | undefined | null | false)[]) {
     return twMerge(clsx(inputs));
@@ -26,28 +28,37 @@ export const NavBar = () => {
     }, []);
 
     return (
-        <nav
-            className={cn(
-                "fixed top-4 inset-x-0 mx-auto max-w-2xl z-50 rounded-full border transition-all duration-300 px-6 py-3 flex items-center justify-between",
-                scrolled
-                    ? "bg-neutral-950/80 border-neutral-800 backdrop-blur-md shadow-lg"
-                    : "bg-transparent border-transparent"
-            )}
-        >
-            <Link href="/" className="text-lg font-bold tracking-tight text-white hover:opacity-80 transition-opacity">
-                Anirudh
-            </Link>
-            <div className="flex gap-6">
-                {navItems.map((item) => (
-                    <Link
-                        key={item.name}
-                        href={item.link}
-                        className="text-sm font-medium text-neutral-400 hover:text-white transition-colors"
-                    >
-                        {item.name}
+        <div className="fixed top-4 inset-x-0 z-50 mx-auto w-full max-w-2xl px-4">
+            <GlassSurface
+                width="100%"
+                height={58}
+                borderRadius={29}
+                backgroundOpacity={scrolled ? 0.28 : 0.18}
+                blur={12}
+                opacity={0.9}
+                distortionScale={-160}
+                className="w-full transition-shadow duration-300"
+            >
+                <div className="flex w-full items-center justify-between gap-4 px-5">
+                    <Link href="/" className="font-display text-lg font-medium tracking-tight text-foreground hover:opacity-70 transition-opacity">
+                        Anirudh
                     </Link>
-                ))}
-            </div>
-        </nav>
+                    <div className="flex items-center gap-5">
+                        <div className="hidden sm:flex gap-5">
+                            {navItems.map((item) => (
+                                <Link
+                                    key={item.name}
+                                    href={item.link}
+                                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                                >
+                                    {item.name}
+                                </Link>
+                            ))}
+                        </div>
+                        <ThemeToggle />
+                    </div>
+                </div>
+            </GlassSurface>
+        </div>
     );
 };
