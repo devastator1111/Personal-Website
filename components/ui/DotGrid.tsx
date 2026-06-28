@@ -126,7 +126,9 @@ const DotGrid = ({
         if (!wrap || !canvas) return;
 
         const { width, height } = wrap.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
+        // Cap DPR: this canvas can be several screens tall, so a 2x backing
+        // store is a lot of pixels to clear/redraw every frame for 2px dots.
+        const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
 
         canvas.width = width * dpr;
         canvas.height = height * dpr;
@@ -166,7 +168,7 @@ const DotGrid = ({
     useEffect(() => {
         if (!circlePath) return;
 
-        let rafId: number;
+        let rafId: number | null = null;
         const proxSq = proximity * proximity;
 
         const draw = () => {
@@ -205,8 +207,34 @@ const DotGrid = ({
             rafId = requestAnimationFrame(draw);
         };
 
-        draw();
-        return () => cancelAnimationFrame(rafId);
+        const start = () => {
+            if (rafId == null) rafId = requestAnimationFrame(draw);
+        };
+        const stop = () => {
+            if (rafId != null) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+        };
+
+        // The grid spans the whole page body and sits below the hero, so it's
+        // off-screen while the hero (and its WebGL lanyard) is on screen. Only
+        // run the redraw loop while the grid is actually in the viewport.
+        let io: IntersectionObserver | null = null;
+        if (typeof IntersectionObserver !== 'undefined' && wrapperRef.current) {
+            io = new IntersectionObserver(
+                ([entry]) => (entry.isIntersecting ? start() : stop()),
+                { rootMargin: '120px' }
+            );
+            io.observe(wrapperRef.current);
+        } else {
+            start();
+        }
+
+        return () => {
+            io?.disconnect();
+            stop();
+        };
     }, [proximity, baseColor, activeRgb, baseRgb, circlePath]);
 
     useEffect(() => {

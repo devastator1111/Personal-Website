@@ -225,12 +225,29 @@ export default function Lanyard({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Pause the WebGL render loop + physics whenever the lanyard scrolls out of
+  // view, so it stops competing for the main thread while the rest of the page
+  // (dot grid, project cards, …) is on screen. Resumes when the hero returns.
+  const wrapperRef = useRef(null);
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { rootMargin: "120px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div className="lanyard-wrapper">
+    <div className="lanyard-wrapper" ref={wrapperRef}>
       <Canvas
         flat
+        frameloop={visible ? "always" : "never"}
         camera={{ position, fov }}
-        dpr={[1, isMobile ? 1.5 : 2]}
+        dpr={[1, 1.5]}
         gl={{ alpha: true, antialias: true, preserveDrawingBuffer: false }}
         style={{ width: "100%", height: "100%", background: "transparent" }}
         eventSource={eventSource ?? (typeof document !== "undefined" ? document.body : undefined)}
@@ -243,7 +260,7 @@ export default function Lanyard({
         <directionalLight position={[-4, 1, 3]} intensity={0.4} color="#e9e0f6" />
         <pointLight position={[0, 1, 6]} intensity={0.5} />
         <Suspense fallback={null}>
-          <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
+          <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60} paused={!visible}>
             <Band isMobile={isMobile} lanyardWidth={lanyardWidth} isDark={isDark} />
           </Physics>
         </Suspense>
@@ -338,6 +355,10 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
   }, [dragged]);
 
   useFrame((state, delta) => {
+    // Clamp the frame delta: after the loop resumes (scroll back to the hero)
+    // or during a jank spike, a huge delta would make the band lerp overshoot
+    // and the card lurch. Capping it keeps the motion stable.
+    const dt = Math.min(delta, 0.05);
     if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
@@ -359,7 +380,7 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
         );
         ref.current.lerped.lerp(
           ref.current.translation(),
-          delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed))
+          dt * (minSpeed + clampedDistance * (maxSpeed - minSpeed))
         );
       });
       curve.points[0].copy(j3.current.translation());
