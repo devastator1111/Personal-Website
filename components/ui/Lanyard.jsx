@@ -386,25 +386,37 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
     }
     if (fixed.current) {
       [j1, j2].forEach((ref) => {
-        if (!ref.current.lerped)
+        // Re-seed lerped if it's missing or has gone non-finite. A NaN here is
+        // sticky — it survives every later lerp — so without this reset the band
+        // can never recover and keeps rendering NaN geometry.
+        if (!ref.current.lerped || !Number.isFinite(ref.current.lerped.x)) {
           ref.current.lerped = new THREE.Vector3().copy(ref.current.translation());
+        }
         const clampedDistance = Math.max(
           0.1,
           Math.min(1, ref.current.lerped.distanceTo(ref.current.translation()))
         );
-        ref.current.lerped.lerp(
-          ref.current.translation(),
+        // Clamp the lerp factor to <= 1. A lerp is only stable in [0,1]; at lower
+        // frame rates dt grows and this factor can exceed 2, turning the smoothing
+        // into a divergent oscillation that overshoots to infinity -> NaN strap
+        // positions. That's why the band exploded on the deployed build (lower
+        // hero FPS) but never in the higher-FPS dev server.
+        const alpha = Math.min(
+          1,
           dt * (minSpeed + clampedDistance * (maxSpeed - minSpeed))
         );
+        ref.current.lerped.lerp(ref.current.translation(), alpha);
       });
       curve.points[0].copy(j3.current.translation());
       curve.points[1].copy(j2.current.lerped);
       curve.points[2].copy(j1.current.lerped);
       curve.points[3].copy(fixed.current.translation());
-      // Insurance: never feed a non-finite point to the band geometry — a single
-      // NaN smears the strap into ribbons across the whole screen.
-      if (curve.points.every((p) => Number.isFinite(p.x) && Number.isFinite(p.y) && Number.isFinite(p.z))) {
-        band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32));
+      // Insurance: validate the actual generated points (what fills the buffer)
+      // and never feed a non-finite one to the band — a single NaN smears the
+      // strap into ribbons across the whole screen.
+      const pts = curve.getPoints(isMobile ? 16 : 32);
+      if (pts.every((p) => Number.isFinite(p.x) && Number.isFinite(p.y) && Number.isFinite(p.z))) {
+        band.current.geometry.setPoints(pts);
       }
       ang.copy(card.current.angvel());
       rot.copy(card.current.rotation());
