@@ -9,7 +9,15 @@
       "Bash(rm -f app/cardtest/page.tsx)",
       "Bash(rmdir app/cardtest)",
       "PowerShell(npx tsc --noEmit)",
-      "PowerShell(npm run build)"
+      "PowerShell(npm run build)",
+      "Bash(git --no-pager diff -- components/ui/Lanyard.jsx)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(npm ls *)",
+      "Bash(npx next *)",
+      "Bash(npx eslint *)",
+      "Bash(echo \"EXIT:$?\")"
     ]
   }
 }

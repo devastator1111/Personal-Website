@@ -148,7 +148,7 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
                         <div className="flex flex-col md:flex-row">
                             {/* Image Carousel Section */}
                             {project.images && project.images.length > 0 && (
-                                <div className="w-full md:w-1/2 bg-secondary/40 relative group min-h-[300px] md:min-h-[500px]">
+                                <div className="w-full md:w-1/2 bg-[#FBF6EC] dark:bg-secondary/40 relative group min-h-[300px] md:min-h-[500px]">
                                     <div className="w-full h-full relative aspect-video md:aspect-auto md:h-full group-hover:cursor-pointer" onClick={() => setIsZoomed(true)}>
                                         <AnimatePresence mode="wait">
                                             <motion.div
@@ -163,6 +163,7 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
                                                     src={project.images[currentImageIndex]}
                                                     alt={`${project.title} - Image ${currentImageIndex + 1}`}
                                                     fill
+                                                    sizes="(max-width: 768px) 100vw, 50vw"
                                                     className="object-contain object-center"
                                                     priority
                                                 />
@@ -272,6 +273,7 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
                                                 src={project.images[currentImageIndex]}
                                                 alt={`${project.title} - Fullscreen Image ${currentImageIndex + 1}`}
                                                 fill
+                                                sizes="100vw"
                                                 className="object-contain" // Changed to contain for full visibility
                                                 priority
                                             />

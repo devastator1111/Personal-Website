@@ -9,10 +9,17 @@ import MagicBento from "@/components/ui/MagicBento";
 import SoftBackdrop from "@/components/ui/SoftBackdrop";
 import DotGrid from "@/components/ui/DotGrid";
 import { ArrowDown, ArrowUpRight, Bot, Cpu, CircuitBoard } from "lucide-react";
-import { ProjectModal, type ProjectData } from "@/components/ui/ProjectModal";
+import type { ProjectData } from "@/components/ui/ProjectModal";
 
 // 3D physics canvas — load only on the client to avoid SSR issues.
 const Lanyard = dynamic(() => import("@/components/ui/Lanyard"), { ssr: false });
+
+// Modal pulls in framer-motion; load it only once a project is first opened so
+// the animation library stays out of the initial page bundle.
+const ProjectModal = dynamic(
+  () => import("@/components/ui/ProjectModal").then((m) => m.ProjectModal),
+  { ssr: false }
+);
 
 // Tracks whether the dark theme is active so canvas-based effects can recolor.
 function useIsDark() {
@@ -128,11 +135,15 @@ function SectionHeading({ index, total, title }: { index: string; total: string;
 export default function Home() {
   const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // Stays true after the first open so the modal remains mounted (its exit
+  // animation can play) without loading its chunk on initial page load.
+  const [modalMounted, setModalMounted] = useState(false);
   const isDark = useIsDark();
   const heroRef = useRef<HTMLElement>(null);
 
   const handleProjectClick = (project: ProjectData) => {
     setSelectedProject(project);
+    setModalMounted(true);
     setIsModalOpen(true);
   };
 
@@ -310,11 +321,13 @@ export default function Home() {
       </div>
 
       <Footer />
-      <ProjectModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        project={selectedProject}
-      />
+      {modalMounted && (
+        <ProjectModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          project={selectedProject}
+        />
+      )}
     </main>
   );
 }

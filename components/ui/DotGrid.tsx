@@ -170,6 +170,8 @@ const DotGrid = ({
 
         let rafId: number | null = null;
         const proxSq = proximity * proximity;
+        const radius = dotSize / 2;
+        const TWO_PI = Math.PI * 2;
 
         const draw = () => {
             const canvas = canvasRef.current;
@@ -179,29 +181,45 @@ const DotGrid = ({
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             const { x: px, y: py } = pointerRef.current;
+            const dots = dotsRef.current;
 
-            for (const dot of dotsRef.current) {
+            // Pass 1: every dot outside the pointer's proximity radius shares the
+            // base colour, so batch them into a single path and fill once rather
+            // than issuing a save/translate/fill/restore for each (hundreds/frame).
+            ctx.fillStyle = baseColor;
+            ctx.beginPath();
+            for (let i = 0; i < dots.length; i++) {
+                const dot = dots[i];
+                const dx = dot.cx - px;
+                const dy = dot.cy - py;
+                if (dx * dx + dy * dy <= proxSq) continue; // near pointer → pass 2
                 const ox = dot.cx + dot.xOffset;
                 const oy = dot.cy + dot.yOffset;
+                ctx.moveTo(ox + radius, oy);
+                ctx.arc(ox, oy, radius, 0, TWO_PI);
+            }
+            ctx.fill();
+
+            // Pass 2: the handful of dots inside the radius get an individually
+            // interpolated colour (base → active).
+            for (let i = 0; i < dots.length; i++) {
+                const dot = dots[i];
                 const dx = dot.cx - px;
                 const dy = dot.cy - py;
                 const dsq = dx * dx + dy * dy;
-
-                let style = baseColor;
-                if (dsq <= proxSq) {
-                    const dist = Math.sqrt(dsq);
-                    const t = 1 - dist / proximity;
-                    const r = Math.round(baseRgb.r + (activeRgb.r - baseRgb.r) * t);
-                    const g = Math.round(baseRgb.g + (activeRgb.g - baseRgb.g) * t);
-                    const b = Math.round(baseRgb.b + (activeRgb.b - baseRgb.b) * t);
-                    style = `rgb(${r},${g},${b})`;
-                }
-
-                ctx.save();
-                ctx.translate(ox, oy);
-                ctx.fillStyle = style;
-                ctx.fill(circlePath);
-                ctx.restore();
+                if (dsq > proxSq) continue;
+                const ox = dot.cx + dot.xOffset;
+                const oy = dot.cy + dot.yOffset;
+                const dist = Math.sqrt(dsq);
+                const t = 1 - dist / proximity;
+                const r = Math.round(baseRgb.r + (activeRgb.r - baseRgb.r) * t);
+                const g = Math.round(baseRgb.g + (activeRgb.g - baseRgb.g) * t);
+                const b = Math.round(baseRgb.b + (activeRgb.b - baseRgb.b) * t);
+                ctx.fillStyle = `rgb(${r},${g},${b})`;
+                ctx.beginPath();
+                ctx.moveTo(ox + radius, oy);
+                ctx.arc(ox, oy, radius, 0, TWO_PI);
+                ctx.fill();
             }
 
             rafId = requestAnimationFrame(draw);
@@ -235,7 +253,7 @@ const DotGrid = ({
             io?.disconnect();
             stop();
         };
-    }, [proximity, baseColor, activeRgb, baseRgb, circlePath]);
+    }, [proximity, baseColor, activeRgb, baseRgb, circlePath, dotSize]);
 
     useEffect(() => {
         buildGrid();
