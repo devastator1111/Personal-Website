@@ -7,7 +7,9 @@
       "Bash(\"/c/Program Files/Google/Chrome/Application/chrome.exe\" --headless=new --hide-scrollbars --window-size=1500,1300 --use-gl=angle --use-angle=swiftshader --virtual-time-budget=20000 \"--screenshot=C:\\\\Users\\\\Anirudh\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--Personal-Website\\\\654d2a37-8a46-4bcc-9b2b-8552ea22cd84\\\\scratchpad\\\\real.png\" \"http://localhost:3000\")",
       "Bash(\"/c/Program Files/Google/Chrome/Application/chrome.exe\" --headless=new --hide-scrollbars --window-size=500,500 --virtual-time-budget=8000 \"--screenshot=C:\\\\Users\\\\Anirudh\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--Personal-Website\\\\654d2a37-8a46-4bcc-9b2b-8552ea22cd84\\\\scratchpad\\\\realtex.png\" \"http://localhost:3000/cardtest\")",
       "Bash(rm -f app/cardtest/page.tsx)",
-      "Bash(rmdir app/cardtest)"
+      "Bash(rmdir app/cardtest)",
+      "PowerShell(npx tsc --noEmit)",
+      "PowerShell(npm run build)"
     ]
   }
 }

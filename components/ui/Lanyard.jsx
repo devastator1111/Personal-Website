@@ -197,6 +197,16 @@ function makeBandTexture(accent, edge) {
   return tex;
 }
 
+/**
+ * @param {object} props
+ * @param {number[]} [props.position]
+ * @param {number[]} [props.gravity]
+ * @param {number} [props.fov]
+ * @param {boolean} [props.transparent]
+ * @param {number} [props.lanyardWidth]
+ * @param {import("react").RefObject<HTMLElement | null> | HTMLElement | null} [props.eventSource]
+ * @param {boolean} [props.isDark]
+ */
 export default function Lanyard({
   position = [0, 0, 18],
   gravity = [0, -40, 0],
