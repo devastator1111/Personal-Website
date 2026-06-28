@@ -36,7 +36,10 @@ export const NavBar = () => {
                 backgroundOpacity={scrolled ? 0.28 : 0.18}
                 blur={12}
                 opacity={0.9}
-                distortionScale={-70}
+                distortionScale={-50}
+                redOffset={0}
+                greenOffset={0}
+                blueOffset={0}
                 className="w-full transition-shadow duration-300"
             >
                 <div className="flex w-full items-center justify-between gap-4 px-5">
