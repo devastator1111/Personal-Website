@@ -21,7 +21,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Anirudh Ramesh — Embedded Systems & IoT Engineer",
+  title: "Anirudh Ramesh",
   description: "Portfolio of Anirudh Ramesh. Hardware, microcontrollers, sensors, and real-time automation.",
 };
 
