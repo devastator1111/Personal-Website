@@ -113,10 +113,10 @@ function makeCardTexture(accent, img) {
     // the inner rect — "contain" so nothing is cropped — then centre it.
     const { sx, sy, sw, sh } = getContentBounds(img);
     const fit = 0.6; // leave a little breathing room inside the frame
-    const scale = Math.max(iw / sw, ih / sh) * fit; // contain
+    const scale = Math.max(iw / sw, ih / sh) * 0.5; // contain
     const dw = sw * scale;
     const dh = sh * scale;
-    const shiftX = -99; // nudge the memoji toward the left
+    const shiftX = -110; // nudge the memoji toward the left
     const dx = pad + (iw - dw) / 2 + shiftX;
     const dy = pad + (ih - dh) / 2;
     x.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
@@ -138,7 +138,7 @@ function makeCardTexture(accent, img) {
     const sideMargin = 36;
     const bottomGap = 18;
     const destW = iw - sideMargin * 2; // target text width, with breathing room
-    const centerX = W / 2;
+    const centerX = W / 2.9;
     const destBottom = H - pad - bottomGap;
     const availH = destBottom - (memojiBottom + 10);
 
@@ -150,7 +150,7 @@ function makeCardTexture(accent, img) {
     };
 
     // Scale a reference size so the rendered width lands exactly on destW…
-    const refPx = 200;
+    const refPx = 100;
     let fontPx = (refPx * destW) / widthAt(refPx);
     // …then shrink further if the vertical room is tight (after the squish).
     const capH = fontPx * 0.74; // ~cap height for Fraunces at this weight
@@ -161,9 +161,9 @@ function makeCardTexture(accent, img) {
     x.textAlign = "center";
     x.textBaseline = "alphabetic";
     x.translate(centerX, destBottom);
-    x.scale(1, yComp); // squish height so the letters read true on the card
+    x.scale(0.8, yComp); // squish height so the letters read true on the card
     x.font = `600 ${fontPx}px ${family}`;
-    x.fillText(text, 0, 0);
+    x.fillText(text, -25, 0);
     x.restore();
   }
 
