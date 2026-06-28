@@ -364,11 +364,25 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
       dir.copy(vec).sub(state.camera.position).normalize();
       vec.add(dir.multiplyScalar(state.camera.position.length()));
       [card, j1, j2, j3, fixed].forEach((ref) => ref.current?.wakeUp());
-      card.current?.setNextKinematicTranslation({
-        x: vec.x - dragged.x,
-        y: vec.y - dragged.y,
-        z: vec.z - dragged.z,
-      });
+      // Move the card toward the pointer, but clamp how far it may travel in a
+      // single frame. A fast fling would otherwise teleport the kinematic card,
+      // yank the rope joints past their solver limits and make the band explode
+      // into giant ribbons — most visible in the production build, which runs at
+      // a higher frame rate (so a flick covers more distance per step).
+      const cur = card.current.translation();
+      let tx = vec.x - dragged.x;
+      let ty = vec.y - dragged.y;
+      let tz = vec.z - dragged.z;
+      const mdx = tx - cur.x, mdy = ty - cur.y, mdz = tz - cur.z;
+      const moveDist = Math.hypot(mdx, mdy, mdz);
+      const maxStep = 1.5;
+      if (moveDist > maxStep) {
+        const s = maxStep / moveDist;
+        tx = cur.x + mdx * s;
+        ty = cur.y + mdy * s;
+        tz = cur.z + mdz * s;
+      }
+      card.current?.setNextKinematicTranslation({ x: tx, y: ty, z: tz });
     }
     if (fixed.current) {
       [j1, j2].forEach((ref) => {
@@ -387,7 +401,11 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
       curve.points[1].copy(j2.current.lerped);
       curve.points[2].copy(j1.current.lerped);
       curve.points[3].copy(fixed.current.translation());
-      band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32));
+      // Insurance: never feed a non-finite point to the band geometry — a single
+      // NaN smears the strap into ribbons across the whole screen.
+      if (curve.points.every((p) => Number.isFinite(p.x) && Number.isFinite(p.y) && Number.isFinite(p.z))) {
+        band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32));
+      }
       ang.copy(card.current.angvel());
       rot.copy(card.current.rotation());
       card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
