@@ -17,7 +17,8 @@
       "Bash(npm ls *)",
       "Bash(npx next *)",
       "Bash(npx eslint *)",
-      "Bash(echo \"EXIT:$?\")"
+      "Bash(echo \"EXIT:$?\")",
+      "WebFetch(domain:www.linkedin.com)"
     ]
   }
 }

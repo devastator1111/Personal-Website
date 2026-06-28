@@ -37,6 +37,49 @@ function useIsDark() {
 
 const PROJECTS = [
   {
+    id: 5,
+    title: '3D Swarm Navigation System',
+    description: 'A simulation of natural swarm behaviour using Reynolds Flocking, leader-follower navigation, and real-time obstacle avoidance, with a live 3D visualization built in Python.',
+    longDescription: `This project simulates how groups like schools of fish coordinate movement without centralized control, simple local rules producing complex global behaviour.
+
+I implemented the Reynolds Flocking algorithm (alignment, cohesion, and separation) alongside leader-follower navigation, a dual-layer collision prevention system, and real-time obstacle avoidance. The simulation engine is written in C, with the live 3D environment rendered in Python using Matplotlib, and the system supports CLI-configurable parameters for agent count, obstacles, and obstacle placement.
+
+Key Outcomes
+• Stable swarm formation across varying agent counts
+• Smooth leader tracking with non-overlapping agents
+• Real-time obstacle avoidance with dual-layer collision prevention
+• Flexible, CLI-configurable runtime parameters
+
+Tools and Skills
+C, Python, Matplotlib, multi-agent systems, simulation architecture, real-time data streaming`,
+    tags: ['C', 'Python', 'Multi-Agent Systems'],
+    color: 'var(--card)',
+    //link: 'https://www.linkedin.com/posts/anirudh-ramesh-407445206_swarmintelligence-embeddedsystems-simulation-activity-7451150935713636353-7etL',
+    images: ["/projects/Fish simul/Flocking mode.jpg", "/projects/Fish simul/Leader follower mode.jpg"]
+  },
+  {
+    id: 6,
+    title: 'Smart Hunger Prediction & Redistribution System',
+    description: 'An IoT platform that monitors food stock levels across multiple centres in real time and generates redistribution recommendations using adaptive, consumption-based risk analysis.',
+    longDescription: `This IoT system tackles food waste and hunger by monitoring food stock levels across multiple centres in real time and generating redistribution recommendations. Instead of relying on fixed thresholds, it uses adaptive risk analysis based on each centre's 24-hour consumption pattern to classify it as Normal, Medium Risk, or High Risk.
+
+ESP8266 NodeMCU devices at each centre collect and transmit data over Wi-Fi to a Node.js/Express backend, which stores readings in a Supabase PostgreSQL database and surfaces them on a live web dashboard. The system supports multiple centres via unique device IDs and updates with 5-10 second latency.
+
+Key Features
+• Real-time monitoring with 5-10 second latency
+• Adaptive, consumption-based risk classification (Normal / Medium / High)
+• Multi-centre support via device IDs
+• Intelligent redistribution suggestions
+• Scalable IoT architecture with cloud backend
+
+Tools and Skills
+ESP8266 NodeMCU, Node.js, Express, Supabase (PostgreSQL), IoT system design, real-time data pipelines`,
+    tags: ['ESP8266', 'Node.js', 'Supabase'],
+    color: 'var(--card)',
+    //link: 'https://www.linkedin.com/posts/anirudh-ramesh-407445206_iot-smartsystems-embeddedsystems-activity-7452343687529009152-nIVe',
+    images: ["/projects/Ration redistribution/Ckt.jpg", "/projects/Ration redistribution/Normal State.jpg", "/projects/Ration redistribution/High risk state.jpg"]
+  },
+  {
     id: 1,
     title: '8-Bit R-2R DAC Using 18nm FinFET Technology',
     description: 'Designed and simulated an 8-bit R-2R Digital-to-Analog Converter using 18nm FinFET technology. Focused on high linearity, low leakage, and stable analog output using a custom two-stage FinFET op-amp.',
@@ -55,6 +98,29 @@ Cadence Virtuoso, FinFET technology, analog design, op-amp design, R-2R ladder a
     tags: ['Cadence Virtuoso', 'FinFET', 'Analog Design'],
     color: 'var(--card)',
     images: ["/projects/R-2R DAC/DAC Ckt.jpeg", "/projects/R-2R DAC/DAC Symbol.jpeg", "/projects/R-2R DAC/Graph.jpeg", "/projects/R-2R DAC/OpAmp Ckt.jpeg"]
+  },
+  {
+    id: 4,
+    title: 'Motion and Time-Based Streetlight Controller Using 8051',
+    description: 'Smart streetlight system using 8051 and RTC for time-scheduling and motion detection. Implements PWM dimming to save power during low-traffic hours.',
+    longDescription: `This project focuses on improving streetlight efficiency using an 8051 microcontroller. The system tracks time using an RTC module to decide when lights should be on or off. During midnight to early morning hours, the lights stay dim to save power and brighten only when the PIR sensor detects movement. I implemented PWM for dimming control and wrote the firmware in Embedded C.
+
+Check out the demo video: https://www.youtube.com/watch?v=5ucZLeoO1QQ
+
+The idea was to keep the system simple but effective. It combines time-based scheduling with motion detection, which significantly reduces power usage while still keeping the area illuminated when needed.
+
+Key Features
+• Time-based control using RTC
+• Motion-based brightness boost
+• PWM dimming
+• Low-cost hardware setup
+• Improves power efficiency
+
+Technologies
+8051 microcontroller, Embedded C, RTC DS1307, PIR sensor, PWM, Keil uVision`,
+    tags: ['8051', 'Embedded C', 'Sensors'],
+    color: 'var(--card)',
+    images: ["/projects/St.Light/Ckt.jpeg", "/projects/St.Light/Ckt Diagram.jpeg"]
   },
   {
     id: 2,
@@ -97,29 +163,6 @@ Embedded C, ESP32, sensor interfacing, web server hosting, automation logic`,
     tags: ['Embedded C', 'ESP32', 'IoT'],
     color: 'var(--card)',
     images: ["/projects/IoT/Ckt.jpeg", "/projects/IoT/Flow Chart.jpeg"]
-  },
-  {
-    id: 4,
-    title: 'Motion and Time-Based Streetlight Controller Using 8051',
-    description: 'Smart streetlight system using 8051 and RTC for time-scheduling and motion detection. Implements PWM dimming to save power during low-traffic hours.',
-    longDescription: `This project focuses on improving streetlight efficiency using an 8051 microcontroller. The system tracks time using an RTC module to decide when lights should be on or off. During midnight to early morning hours, the lights stay dim to save power and brighten only when the PIR sensor detects movement. I implemented PWM for dimming control and wrote the firmware in Embedded C.
-
-Check out the demo video: https://www.youtube.com/watch?v=5ucZLeoO1QQ
-
-The idea was to keep the system simple but effective. It combines time-based scheduling with motion detection, which significantly reduces power usage while still keeping the area illuminated when needed.
-
-Key Features
-• Time-based control using RTC
-• Motion-based brightness boost
-• PWM dimming
-• Low-cost hardware setup
-• Improves power efficiency
-
-Technologies
-8051 microcontroller, Embedded C, RTC DS1307, PIR sensor, PWM, Keil uVision`,
-    tags: ['8051', 'Embedded C', 'Sensors'],
-    color: 'var(--card)',
-    images: ["/projects/St.Light/Ckt.jpeg", "/projects/St.Light/Ckt Diagram.jpeg"]
   }
 ];
 
