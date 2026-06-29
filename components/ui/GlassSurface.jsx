@@ -33,10 +33,10 @@ const GlassSurface = ({
   borderRadius = 20,
   borderWidth = 0.07,
   brightness = 50,
-  opacity = 0.93,
-  blur = 11,
-  displace = 0,
-  backgroundOpacity = 0,
+  opacity = 0.5,
+  blur = 0.9,
+  displace = 2.5,
+  backgroundOpacity = 0.5,
   saturation = 1,
   distortionScale = -180,
   redOffset = 0,
@@ -147,6 +147,15 @@ const GlassSurface = ({
 
   const supportsSVGFilters = () => {
     if (typeof window === "undefined" || typeof document === "undefined") {
+      return false;
+    }
+    // Phones and tablets always get the simple frosted fallback, regardless of
+    // browser or screen size. Real laptops/desktops have a fine pointer + hover;
+    // touch devices report a coarse pointer and no true hover.
+    const isPointerDevice =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(pointer: fine) and (hover: hover)").matches;
+    if (!isPointerDevice) {
       return false;
     }
     const isWebkit = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
