@@ -1,9 +1,8 @@
-/* eslint-disable react/no-unknown-property */
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Suspense } from "react";
 import { Canvas, extend, useFrame } from "@react-three/fiber";
-import { RoundedBox } from "@react-three/drei";
+import { useGLTF, Environment, Lightformer } from "@react-three/drei";
 import {
   BallCollider,
   CuboidCollider,
@@ -19,31 +18,31 @@ import "./Lanyard.css";
 extend({ MeshLineGeometry, MeshLineMaterial });
 
 /**
- * Self-contained, theme-aware adaptation of the React Bits "Lanyard".
- * Instead of shipping a binary card.glb + lanyard.png, the ID card face and the
- * band texture are generated at runtime in the site's pastel palette, so the
- * component works after a plain `npm install` (no asset downloads).
+ * React Bits "Lanyard" (https://github.com/DavidHDev/react-bits) — the original
+ * implementation: a real `card.glb` model, Rapier rope/spherical physics, an
+ * `Environment` + `Lightformer` lighting rig and a textured meshline band.
  *
- * Keeps the original behaviour: rapier rope/spherical physics, a draggable
- * hanging card, and a textured meshline band.
+ * Only the *displayed* values are this site's own: the card body is recoloured
+ * to the pastel lilac, the front and back faces show the memoji + name, and the
+ * band is a plain lilac strap. Everything else matches the upstream component.
  */
 
 const PALETTE = {
-  cream: "#fbf6ec",
-  ink: "#383341",
-  muted: "#786d83",
   lilac: "#b8a2e6",
-  lilacSoft: "#e9e0f6",
-  lilacDeep: "#4a3a6b",
-  mint: "#9bd4ba",
-  pink: "#f0b6ca",
   bandText: "#2a1f47",
-  bandEdge: "#B8A2E6",
-  hairline: "#e4dac8",
+  bandEdge: "#b8a2e6",
 };
 
+// The card model's front face is UV-mapped to the LEFT half of the texture
+// atlas and the back face to the RIGHT half (measured from card.glb).
+const FRONT_UV_RECT = { x: 0, y: 0, w: 0.5, h: 0.755 };
+const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.757 };
+
+// Preload the model so the card pops in without a hitch.
+useGLTF.preload("/card.glb");
+
 // Find the opaque bounding box of an image, ignoring transparent margins, so
-// the memoji's *content* (not its padded square) can be fitted into the card.
+// the memoji's *content* (not its padded square) can be fitted onto the card.
 function getContentBounds(img) {
   const c = document.createElement("canvas");
   c.width = img.width;
@@ -83,95 +82,51 @@ function displayFontFamily() {
   return family ? `${family}, Georgia, serif` : "Georgia, 'Times New Roman', serif";
 }
 
-function makeCardTexture(accent, img) {
-  const W = 568;
-  const H = 568 ;
-  const c = document.createElement("canvas");
-  c.width = W;
-  c.height = H;
-  const x = c.getContext("2d");
+// Paint one card face (memoji + name on lilac) into its UV rect of the atlas.
+function drawCardFace(ctx, rect, W, H, img, name) {
+  const rx = rect.x * W;
+  const ry = rect.y * H;
+  const rw = rect.w * W;
+  const rh = rect.h * H;
 
-  const pad = 44;
-  const iw = W - pad * 2;
-  const ih = H - pad * 2;
-  const radius = 28;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(rx, ry, rw, rh);
+  ctx.clip();
 
-  // lilac card frame (also shows through any transparent areas of the memoji,
-  // so the border reads as one even colour all the way around)
-  x.fillStyle = "#b8a2e6";
-  x.fillRect(0, 0, W, H);
+  // lilac face
+  ctx.fillStyle = PALETTE.lilac;
+  ctx.fillRect(rx, ry, rw, rh);
 
-  // memoji only — inset uniformly from all edges so the frame is even
-  let memojiBottom = pad + ih * 0.7; // fallback gap anchor before the image loads
+  // memoji — contained in the upper area, nothing cropped, horizontally centred
   if (img) {
-    x.save();
-    x.beginPath();
-    x.roundRect(pad, pad, iw, ih, radius);
-    x.clip();
-
-    // Fit the memoji's *content* (not its transparent square) entirely inside
-    // the inner rect — "contain" so nothing is cropped — then centre it.
     const { sx, sy, sw, sh } = getContentBounds(img);
-    const fit = 0.6; // leave a little breathing room inside the frame
-    const scale = Math.max(iw / sw, ih / sh) * 0.5; // contain
+    const areaW = rw * 0.82;
+    const areaH = rh * 0.56;
+    const scale = Math.min(areaW / sw, areaH / sh);
     const dw = sw * scale;
     const dh = sh * scale;
-    const shiftX = -110; // nudge the memoji toward the left
-    const dx = pad + (iw - dw) / 2 + shiftX;
-    const dy = pad + (ih - dh) / 2;
-    x.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
-    x.restore();
-    memojiBottom = dy + dh;
+    const dx = rx + (rw - dw) / 2;
+    const dy = ry + rh * 0.1 + (areaH - dh) / 2;
+    ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
   }
 
-  // name plate — the full name in the hero's display font, centred in the gap
-  // below the memoji. We measure the real text width and pick a font size that
-  // makes the *whole* string fit the available width, then squish it vertically
-  // so the letters keep their proportions once the square texture is mapped onto
-  // the portrait card. textAlign:"center" + a width-fit means the name can never
-  // be clipped, regardless of which font metrics are active when it renders.
-  {
-    const text = "Anirudh Ramesh";
-    const cardAspect = 0.711; // RoundedBox width / height (see card body below)
-    const yComp = cardAspect * (H / W); // offset the square→portrait squish
+  // name — the hero's display font, width-fitted so it can never clip
+  const family = displayFontFamily();
+  const margin = rw * 0.1;
+  const maxW = rw - margin * 2;
+  let fontPx = rh * 0.1;
+  ctx.font = `600 ${fontPx}px ${family}`;
+  const tw = ctx.measureText(name).width || 1;
+  if (tw > maxW) fontPx *= maxW / tw;
 
-    const sideMargin = 36;
-    const bottomGap = 18;
-    const destW = iw - sideMargin * 2; // target text width, with breathing room
-    const centerX = W / 2.9;
-    const destBottom = H - pad - bottomGap;
-    const availH = destBottom - (memojiBottom + 10);
+  ctx.fillStyle = PALETTE.bandText;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `600 ${fontPx}px ${family}`;
+  ctx.fillText(name, rx + rw / 2, ry + rh * 0.8);
 
-    const family = displayFontFamily();
-    const probe = document.createElement("canvas").getContext("2d");
-    const widthAt = (px) => {
-      probe.font = `600 ${px}px ${family}`;
-      return probe.measureText(text).width || 1;
-    };
-
-    // Scale a reference size so the rendered width lands exactly on destW…
-    const refPx = 100;
-    let fontPx = (refPx * destW) / widthAt(refPx);
-    // …then shrink further if the vertical room is tight (after the squish).
-    const capH = fontPx * 0.74; // ~cap height for Fraunces at this weight
-    if (capH * yComp > availH) fontPx *= availH / (capH * yComp);
-
-    x.save();
-    x.fillStyle = PALETTE.bandText;
-    x.textAlign = "center";
-    x.textBaseline = "alphabetic";
-    x.translate(centerX, destBottom);
-    x.scale(0.8, yComp); // squish height so the letters read true on the card
-    x.font = `600 ${fontPx}px ${family}`;
-    x.fillText(text, -25, 0);
-    x.restore();
-  }
-
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 16;
-  tex.needsUpdate = true;
-  return tex;
+  ctx.restore();
 }
 
 function makeBandTexture(accent, edge) {
@@ -185,7 +140,6 @@ function makeBandTexture(accent, edge) {
   // plain strap with subtle edge piping — no text/markings
   x.fillStyle = accent;
   x.fillRect(0, 0, W, H);
-
   x.fillStyle = edge;
   x.fillRect(0, 0, W, 9);
   x.fillRect(0, H - 9, W, 9);
@@ -214,7 +168,6 @@ export default function Lanyard({
   transparent = true,
   lanyardWidth = 1.1,
   eventSource = null,
-  isDark = false,
 }) {
   const [isMobile, setIsMobile] = useState(
     () => typeof window !== "undefined" && window.innerWidth < 768
@@ -227,7 +180,7 @@ export default function Lanyard({
 
   // Pause the WebGL render loop + physics whenever the lanyard scrolls out of
   // view, so it stops competing for the main thread while the rest of the page
-  // (dot grid, project cards, …) is on screen. Resumes when the hero returns.
+  // is on screen. Resumes when the hero returns.
   const wrapperRef = useRef(null);
   const [visible, setVisible] = useState(true);
   useEffect(() => {
@@ -244,32 +197,57 @@ export default function Lanyard({
   return (
     <div className="lanyard-wrapper" ref={wrapperRef}>
       <Canvas
-        flat
         frameloop={visible ? "always" : "never"}
         camera={{ position, fov }}
-        dpr={[1, 1.5]}
-        gl={{ alpha: true, antialias: true, preserveDrawingBuffer: false }}
+        dpr={[1, isMobile ? 1.5 : 2]}
+        gl={{ alpha: transparent }}
         style={{ width: "100%", height: "100%", background: "transparent" }}
         eventSource={eventSource ?? (typeof document !== "undefined" ? document.body : undefined)}
         eventPrefix="client"
-        onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), 0)}
+        onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}
       >
-        <ambientLight intensity={0.9} />
-        <hemisphereLight args={["#ffffff", "#d8cfe6", 0.5]} />
-        <directionalLight position={[3, 5, 4]} intensity={1.1} />
-        <directionalLight position={[-4, 1, 3]} intensity={0.4} color="#e9e0f6" />
-        <pointLight position={[0, 1, 6]} intensity={0.5} />
+        <ambientLight intensity={Math.PI} />
         <Suspense fallback={null}>
           <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60} paused={!visible}>
-            <Band isMobile={isMobile} lanyardWidth={lanyardWidth} isDark={isDark} />
+            <Band isMobile={isMobile} lanyardWidth={lanyardWidth} />
           </Physics>
+          <Environment blur={0.75}>
+            <Lightformer
+              intensity={2}
+              color="white"
+              position={[0, -1, 5]}
+              rotation={[0, 0, Math.PI / 3]}
+              scale={[100, 0.1, 1]}
+            />
+            <Lightformer
+              intensity={3}
+              color="white"
+              position={[-1, -1, 1]}
+              rotation={[0, 0, Math.PI / 3]}
+              scale={[100, 0.1, 1]}
+            />
+            <Lightformer
+              intensity={3}
+              color="white"
+              position={[1, 1, 1]}
+              rotation={[0, 0, Math.PI / 3]}
+              scale={[100, 0.1, 1]}
+            />
+            <Lightformer
+              intensity={10}
+              color="white"
+              position={[-10, 0, 14]}
+              rotation={[0, Math.PI / 2, Math.PI / 3]}
+              scale={[100, 10, 1]}
+            />
+          </Environment>
         </Suspense>
       </Canvas>
     </div>
   );
 }
 
-function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.1, isDark = false }) {
+function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.1 }) {
   const band = useRef();
   const fixed = useRef();
   const j1 = useRef();
@@ -290,10 +268,11 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
     linearDamping: 4,
   };
 
-  // Theme-aware accent: a brighter, more luminous lilac on the dark plum
-  // background (the muted light-mode lilac reads as grey/washed out there).
-  const accent = isDark ? "#b8a2e6" : "#b8a2e6";
-  const accentEdge = isDark ? "#b8a2e6" : "#b8a2e6";
+  const { nodes, materials } = useGLTF("/card.glb");
+
+  // Theme accent — the site's pastel lilac in both colour modes.
+  const accent = "#b8a2e6";
+  const accentEdge = "#b8a2e6";
 
   // Load the memoji photo once; the card texture rebuilds when it arrives.
   const [memoji, setMemoji] = useState(null);
@@ -312,20 +291,47 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
     }
   }, []);
 
-  // fontReady is intentional: makeCardTexture reads the loaded font indirectly.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const cardTex = useMemo(() => makeCardTexture(accent, memoji), [accent, memoji, fontReady]);
+  // Recolour the card body to lilac and composite the memoji + name onto the
+  // front and back faces of the GLB's texture atlas (aspect-preserving).
+  const cardMap = useMemo(() => {
+    const baseMap = materials.base.map;
+    const baseImg = baseMap.image;
+    const W = baseImg?.width || 1024;
+    const H = baseImg?.height || 1024;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return baseMap;
+
+    // lilac everywhere first → card edges read lilac too
+    ctx.fillStyle = PALETTE.lilac;
+    ctx.fillRect(0, 0, W, H);
+
+    drawCardFace(ctx, FRONT_UV_RECT, W, H, memoji, "Anirudh Ramesh");
+    drawCardFace(ctx, BACK_UV_RECT, W, H, memoji, "Anirudh Ramesh");
+
+    const composite = new THREE.CanvasTexture(canvas);
+    composite.colorSpace = THREE.SRGBColorSpace;
+    composite.flipY = baseMap.flipY;
+    composite.anisotropy = 16;
+    composite.needsUpdate = true;
+    return composite;
+    // fontReady forces a rebuild once Fraunces loads (read lazily in drawCardFace)
+  }, [materials.base.map, memoji, fontReady]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const bandTex = useMemo(() => makeBandTexture(accent, accentEdge), [accent, accentEdge]);
 
-  const [curve] = useState(
-    () =>
-      new THREE.CatmullRomCurve3([
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-      ])
-  );
+  const [curve] = useState(() => {
+    const c = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(),
+      new THREE.Vector3(),
+      new THREE.Vector3(),
+      new THREE.Vector3(),
+    ]);
+    c.curveType = "chordal";
+    return c;
+  });
   const [dragged, drag] = useState(false);
   const [hovered, hover] = useState(false);
 
@@ -366,9 +372,7 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
       [card, j1, j2, j3, fixed].forEach((ref) => ref.current?.wakeUp());
       // Move the card toward the pointer, but clamp how far it may travel in a
       // single frame. A fast fling would otherwise teleport the kinematic card,
-      // yank the rope joints past their solver limits and make the band explode
-      // into giant ribbons — most visible in the production build, which runs at
-      // a higher frame rate (so a flick covers more distance per step).
+      // yank the rope joints past their solver limits and make the band explode.
       const cur = card.current.translation();
       let tx = vec.x - dragged.x;
       let ty = vec.y - dragged.y;
@@ -398,9 +402,7 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
         );
         // Clamp the lerp factor to <= 1. A lerp is only stable in [0,1]; at lower
         // frame rates dt grows and this factor can exceed 2, turning the smoothing
-        // into a divergent oscillation that overshoots to infinity -> NaN strap
-        // positions. That's why the band exploded on the deployed build (lower
-        // hero FPS) but never in the higher-FPS dev server.
+        // into a divergent oscillation that overshoots to infinity -> NaN strap.
         const alpha = Math.min(
           1,
           dt * (minSpeed + clampedDistance * (maxSpeed - minSpeed))
@@ -411,9 +413,8 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
       curve.points[1].copy(j2.current.lerped);
       curve.points[2].copy(j1.current.lerped);
       curve.points[3].copy(fixed.current.translation());
-      // Insurance: validate the actual generated points (what fills the buffer)
-      // and never feed a non-finite one to the band — a single NaN smears the
-      // strap into ribbons across the whole screen.
+      // Insurance: validate the actual generated points before feeding the band —
+      // a single NaN smears the strap into ribbons across the whole screen.
       const pts = curve.getPoints(isMobile ? 16 : 32);
       if (pts.every((p) => Number.isFinite(p.x) && Number.isFinite(p.y) && Number.isFinite(p.z))) {
         band.current.geometry.setPoints(pts);
@@ -423,8 +424,6 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
       card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
     }
   });
-
-  curve.curveType = "chordal";
 
   return (
     <>
@@ -443,7 +442,7 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <group
             scale={2.25}
-            position={[0, 0.24, -0.05]}
+            position={[0, -1.23, -0.05]}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
             onPointerUp={(e) => (e.target.releasePointerCapture(e.pointerId), drag(false))}
@@ -452,27 +451,18 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
               drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())))
             )}
           >
-            {/* card body — sized so that (size * groupScale 2.25) matches the collider */}
-            <RoundedBox args={[0.711, 1.0, 0.012]} radius={0.04} smoothness={4}>
+            <mesh geometry={nodes.card.geometry}>
               <meshPhysicalMaterial
-                map={cardTex}
+                map={cardMap}
                 map-anisotropy={16}
                 clearcoat={isMobile ? 0 : 1}
-                clearcoatRoughness={0.2}
-                roughness={0.55}
-                metalness={0.05}
+                clearcoatRoughness={0.15}
+                roughness={0.9}
+                metalness={0.8}
               />
-            </RoundedBox>
-            {/* metal clip — sits at the band's attach point (local y≈1.5 after scale) */}
-            <mesh position={[0, 0.56, 0]}>
-              <boxGeometry args={[0.16, 0.09, 0.03]} />
-              <meshStandardMaterial color="#c9c5d1" metalness={0.55} roughness={0.4} />
             </mesh>
-            {/* clip ring — bridges the clip to the top of the card */}
-            <mesh position={[0, 0.5, 0.01]} rotation={[Math.PI / 2, 0, 0]}>
-              <torusGeometry args={[0.04, 0.014, 12, 24]} />
-              <meshStandardMaterial color="#bdb9c7" metalness={0.55} roughness={0.38} />
-            </mesh>
+            <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
+            <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
           </group>
         </RigidBody>
       </group>
@@ -481,7 +471,6 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
         <meshLineMaterial
           color="white"
           depthTest={false}
-          toneMapped={false}
           resolution={isMobile ? [1000, 2000] : [1000, 1000]}
           useMap
           map={bandTex}

@@ -18,7 +18,14 @@
       "Bash(npx next *)",
       "Bash(npx eslint *)",
       "Bash(echo \"EXIT:$?\")",
-      "WebFetch(domain:www.linkedin.com)"
+      "WebFetch(domain:www.linkedin.com)",
+      "Read(//tmp/tmp.PqJIpiCOIw/**)",
+      "Bash(mkdir -p \"/c/Users/Anirudh/AppData/Local/Temp/claude/d--Personal-Website/a20d2a92-e968-477c-8a0d-c9a704eaa851/scratchpad\")",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/DavidHDev/react-bits/main/src/content/Components/Lanyard/Lanyard.jsx\" -o \"/c/Users/Anirudh/AppData/Local/Temp/claude/d--Personal-Website/a20d2a92-e968-477c-8a0d-c9a704eaa851/scratchpad/Lanyard.orig.jsx\")",
+      "Read(//c/Users/Anirudh/AppData/Local/Temp/claude/d--Personal-Website/a20d2a92-e968-477c-8a0d-c9a704eaa851/scratchpad/**)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/DavidHDev/react-bits/main/src/content/Components/Lanyard/card.glb\" -o card.glb)",
+      "Bash(file card.glb)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/DavidHDev/react-bits/main/src/content/Components/Lanyard/lanyard.png\" -o lanyard.png)"
     ]
   }
 }

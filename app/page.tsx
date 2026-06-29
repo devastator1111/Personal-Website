@@ -200,7 +200,7 @@ export default function Home() {
 
         {/* draggable lanyard — confined to the hero, grab it anywhere in this section (desktop only) */}
         <div className="hidden md:block">
-          <Lanyard position={[0, 0, 18]} gravity={[0, -40, 0]} fov={22} lanyardWidth={0.8} eventSource={heroRef} isDark={isDark} />
+          <Lanyard position={[0, 0, 18]} gravity={[0, -40, 0]} fov={22} lanyardWidth={0.4} eventSource={heroRef} />
         </div>
 
         <div className="relative z-10 mx-auto grid w-full max-w-6xl items-end gap-10 md:grid-cols-[1.5fr_1fr]">
