@@ -1,13 +1,32 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+
 /**
  * A calm, pastel background: a few large blurred colour washes that drift slowly.
  * Replaces the old glowing WebGL light pillar with something soft and human.
  * Works in both light and dark mode (opacity tuned low so it stays subtle).
  */
 export default function SoftBackdrop({ className = "" }: { className?: string }) {
+    // The blobs animate forever, which keeps the compositor (and any
+    // backdrop-filter sampling them, e.g. the glass navbar) busy every frame.
+    // Pause the drift whenever this backdrop is scrolled out of view — it's
+    // invisible then, so there's no visual change, only saved work.
+    const ref = useRef<HTMLDivElement>(null);
+    const [active, setActive] = useState(true);
+    useEffect(() => {
+        const el = ref.current;
+        if (!el || typeof IntersectionObserver === "undefined") return;
+        const io = new IntersectionObserver(
+            ([entry]) => setActive(entry.isIntersecting),
+            { rootMargin: "120px" }
+        );
+        io.observe(el);
+        return () => io.disconnect();
+    }, []);
+
     return (
-        <div className={`pointer-events-none overflow-hidden ${className}`} aria-hidden="true">
+        <div ref={ref} className={`pointer-events-none overflow-hidden ${active ? "" : "soft-backdrop--paused"} ${className}`} aria-hidden="true">
             <div className="soft-blob soft-blob--lilac" />
             <div className="soft-blob soft-blob--mint" />
             <div className="soft-blob soft-blob--pink" />
@@ -59,6 +78,9 @@ export default function SoftBackdrop({ className = "" }: { className?: string })
                 @keyframes drift3 {
                     from { transform: translate(0, 0) scale(1); }
                     to   { transform: translate(-3vw, 4vh) scale(0.95); }
+                }
+                .soft-backdrop--paused .soft-blob {
+                    animation-play-state: paused;
                 }
                 @media (prefers-reduced-motion: reduce) {
                     .soft-blob { animation: none; }
