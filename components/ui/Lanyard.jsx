@@ -455,10 +455,11 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, lanyardWidth = 1.
               <meshPhysicalMaterial
                 map={cardMap}
                 map-anisotropy={16}
-                clearcoat={isMobile ? 0 : 1}
-                clearcoatRoughness={0.15}
-                roughness={0.9}
-                metalness={0.8}
+                clearcoat={0}
+                clearcoatRoughness={1}
+                roughness={1}
+                metalness={0.9}
+                envMapIntensity={0.15}
               />
             </mesh>
             <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
